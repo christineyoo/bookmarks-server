@@ -51,6 +51,18 @@ app.get("/bookmarks", (req, res) => {
   res.send(bookmarks);
 });
 
+app.get("/bookmarks/:id", (req, res) => {
+  const { id } = req.params;
+  const bookmark = bookmarks.find((b) => b.id === id);
+
+  if (!bookmark) {
+    logger.error(`Bookmark with id ${id} not found.`);
+    return res.status(404).send("Bookmark not found.");
+  }
+
+  res.json(bookmark);
+});
+
 app.use(function errorHandler(error, req, res, next) {
   let response;
   if (NODE_ENV === "production") {
