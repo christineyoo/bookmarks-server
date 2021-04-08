@@ -4,3 +4,5 @@
 {"message":"Unauthorized request to path: /bookmarks","level":"error"}
 {"message":"Bookmark with id cdb11179-5a89-45ec-b306-b982c6145608 not found.","level":"error"}
 {"message":"Bookmark with id 7 not found.","level":"error"}
+{"message":"Unauthorized request to path: /bookmarks","level":"error"}
+{"message":"Bookmark with id ef7cf01a-fcb1-40f2-b8b3-2349bea0f2b8 created.","level":"info"}

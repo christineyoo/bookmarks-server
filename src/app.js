@@ -6,6 +6,7 @@ const helmet = require("helmet");
 const { NODE_ENV } = require("./config");
 const winston = require("winston");
 const { bookmarks } = require("./store.js");
+const { v4: uuid } = require("uuid");
 
 const app = express();
 
@@ -14,6 +15,7 @@ const morganOption = NODE_ENV === "production" ? "tiny" : "common";
 app.use(morgan(morganOption));
 app.use(helmet());
 app.use(cors());
+app.use(express.json());
 
 const logger = winston.createLogger({
   level: "info",
@@ -61,6 +63,46 @@ app.get("/bookmarks/:id", (req, res) => {
   }
 
   res.json(bookmark);
+});
+
+app.post("/bookmarks", (req, res) => {
+  const { title, url, description, rating } = req.body;
+
+  if (!title) {
+    logger.error("Title is required");
+    return res.status(400).send("Invalid data");
+  }
+
+  if (!url) {
+    logger.error("url is required");
+    return res.status(400).send("Invalid data");
+  }
+
+  if (!description) {
+    logger.error("Description is required");
+    return res.status(400).send("Invalid data");
+  }
+
+  if (!rating) {
+    logger.error("Rating is required");
+    return res.status(400).send("Invalid data");
+  }
+
+  const id = uuid();
+  const bookmark = {
+    id,
+    title,
+    url,
+    description,
+    rating,
+  };
+
+  bookmarks.push(bookmark);
+  logger.info(`Bookmark with id ${id} created.`);
+  res
+    .status(201)
+    .location(`http://localhost:8000/bookmarks/${id}`)
+    .json(bookmark);
 });
 
 app.use(function errorHandler(error, req, res, next) {
