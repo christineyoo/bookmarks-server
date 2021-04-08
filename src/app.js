@@ -5,6 +5,7 @@ const cors = require("cors");
 const helmet = require("helmet");
 const { NODE_ENV } = require("./config");
 const winston = require("winston");
+const { bookmarks } = require("./store.js");
 
 const app = express();
 
@@ -15,20 +16,20 @@ app.use(helmet());
 app.use(cors());
 
 const logger = winston.createLogger({
-  level: 'info',
+  level: "info",
   format: winston.format.json(),
-  transports: [
-    new winston.transports.File({ filename: 'info.log' })
-  ]
-})
+  transports: [new winston.transports.File({ filename: "info.log" })],
+});
 
-if (NODE_ENV !== 'production') {
-  logger.add(new winston.transports.Console({
-    format: winston.format.simple()
-  }))
+if (NODE_ENV !== "production") {
+  logger.add(
+    new winston.transports.Console({
+      format: winston.format.simple(),
+    })
+  );
 }
 
-// API key handling middleware 
+// API key handling middleware
 // Authorization is needed before it can even reach any of the GET endpoints
 app.use(function validateBearerToken(req, res, next) {
   const apiToken = process.env.API_TOKEN;
@@ -44,6 +45,10 @@ app.use(function validateBearerToken(req, res, next) {
 
 app.get("/", (req, res) => {
   res.send("Hello, world!");
+});
+
+app.get("/bookmarks", (req, res) => {
+  res.send(bookmarks);
 });
 
 app.use(function errorHandler(error, req, res, next) {
