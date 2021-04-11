@@ -17,10 +17,10 @@ values
 ('Google', 'www.google.com', 'Where you can search for anything', 5),
 ('Thinkful', 'www.thinkful.com', 'Where you can learn about coding', 4),
 ('YouTube', 'www.youtube.com', 'Where you can watch anything', 3),
-('Canvas', 'www.canvas.com', 'Where you can learn school subjects'),
-('DeltaMath', 'www.deltamath.com', 'Where you can practice math skills'),
+('Canvas', 'www.canvas.com', 'Where you can learn school subjects', 1),
+('DeltaMath', 'www.deltamath.com', 'Where you can practice math skills', 3),
 ('Amazon', 'www.amazon.com', 'Where you can buy anything', 1),
 ('Facebook', 'www.facebook.com', 'Where you can social network', 3),
 ('Instagram', 'www.instagram.com', 'Where you can see pictures', 2),
 ('Netflix', 'www.netflix.com', 'Where you stream movies and shows', 4),
-('Disney+', 'www.disneyplus.com', 'Where you can stream anything Disney');
+('Disney+', 'www.disneyplus.com', 'Where you can stream anything Disney', 4);
