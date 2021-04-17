@@ -1,52 +1,57 @@
-const express = require("express");
-const { v4: uuid } = require("uuid");
-const { bookmarks } = require("../store.js");
-const winston = require("winston");
-const { NODE_ENV } = require("../config");
+const express = require('express');
+const { v4: uuid } = require('uuid');
+const { bookmarks } = require('../store.js');
+const winston = require('winston');
+const { NODE_ENV } = require('../config');
+const BookmarksService = require('../bookmarksService');
 
 const bookmarkRouter = express.Router();
 const bodyParser = express.json();
 
 const logger = winston.createLogger({
-  level: "info",
+  level: 'info',
   format: winston.format.json(),
-  transports: [new winston.transports.File({ filename: "info.log" })],
+  transports: [new winston.transports.File({ filename: 'info.log' })]
 });
 
-if (NODE_ENV !== "production") {
+if (NODE_ENV !== 'production') {
   logger.add(
     new winston.transports.Console({
-      format: winston.format.simple(),
+      format: winston.format.simple()
     })
   );
 }
 
 bookmarkRouter
-  .route("/bookmarks") 
-  .get((req, res) => {
-    res.send(bookmarks);
+  .route('/bookmarks')
+  .get((req, res, next) => {
+    // res.send(bookmarks);
+    const knexInstance = req.app.get('db');
+    BookmarksService.getAllBookmarks(knexInstance)
+      .then((bookmarks) => res.json(bookmarks))
+      .catch(next);
   })
   .post(bodyParser, (req, res) => {
     const { title, url, description, rating } = req.body;
 
     if (!title) {
-      logger.error("Title is required");
-      return res.status(400).send("Invalid data");
+      logger.error('Title is required');
+      return res.status(400).send('Invalid data');
     }
 
     if (!url) {
-      logger.error("url is required");
-      return res.status(400).send("Invalid data");
+      logger.error('url is required');
+      return res.status(400).send('Invalid data');
     }
 
     if (!description) {
-      logger.error("Description is required");
-      return res.status(400).send("Invalid data");
+      logger.error('Description is required');
+      return res.status(400).send('Invalid data');
     }
 
     if (!rating) {
-      logger.error("Rating is required");
-      return res.status(400).send("Invalid data");
+      logger.error('Rating is required');
+      return res.status(400).send('Invalid data');
     }
 
     const id = uuid();
@@ -55,7 +60,7 @@ bookmarkRouter
       title,
       url,
       description,
-      rating,
+      rating
     };
 
     bookmarks.push(bookmark);
@@ -67,14 +72,14 @@ bookmarkRouter
   });
 
 bookmarkRouter
-  .route("/bookmarks/:id")
+  .route('/bookmarks/:id')
   .get((req, res) => {
     const { id } = req.params;
     const bookmark = bookmarks.find((b) => b.id === id);
 
     if (!bookmark) {
       logger.error(`Bookmark with id ${id} not found.`);
-      return res.status(404).send("Bookmark not found.");
+      return res.status(404).send('Bookmark not found.');
     }
 
     res.json(bookmark);
@@ -85,7 +90,7 @@ bookmarkRouter
 
     if (bookmarkIndex === -1) {
       logger.error(`List with id ${id} not found.`);
-      return res.status(400).send("Not found");
+      return res.status(400).send('Not found');
     }
 
     bookmarks.splice(bookmarkIndex, 1);
