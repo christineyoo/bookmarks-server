@@ -5,7 +5,7 @@ CREATE TABLE bookmark_table (
     url TEXT NOT NULL,
     description TEXT,
     rating INTEGER NOT NULL
-)
+);
 
 -- table for bookmarks-test database
 CREATE TABLE bookmark_test_table (
@@ -14,4 +14,4 @@ CREATE TABLE bookmark_test_table (
     url TEXT NOT NULL,
     description TEXT,
     rating INTEGER NOT NULL
-)
+);
