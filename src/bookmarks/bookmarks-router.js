@@ -22,7 +22,7 @@ if (NODE_ENV !== "production") {
 }
 
 bookmarkRouter
-  .route("/bookmarks")
+  .route("/bookmarks") 
   .get((req, res) => {
     res.send(bookmarks);
   })
