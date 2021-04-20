@@ -105,7 +105,7 @@ bookmarkRouter
       })
       .catch(next);
   })
-  .delete((req, res) => {
+  .delete((req, res, next) => {
     const { id } = req.params;
     const bookmarkIndex = bookmarks.findIndex((i) => i.id == id);
 
@@ -117,7 +117,11 @@ bookmarkRouter
     bookmarks.splice(bookmarkIndex, 1);
 
     logger.info(`List with id ${id} deleted`);
-    res.status(204).end();
+    BookmarksService.deleteBookmark(req.app.get('db'), req.params.id)
+      .then(() => {
+        res.status(204).end();
+      })
+      .catch(next);
   });
 
 module.exports = bookmarkRouter;
