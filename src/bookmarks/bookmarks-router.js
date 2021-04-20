@@ -4,6 +4,7 @@ const { bookmarks } = require('../store.js');
 const winston = require('winston');
 const { NODE_ENV } = require('../config');
 const BookmarksService = require('../bookmarksService');
+const xss = require('xss');
 
 const bookmarkRouter = express.Router();
 const bodyParser = express.json();
@@ -84,15 +85,23 @@ bookmarkRouter
   .route('/bookmarks/:id')
   .get((req, res, next) => {
     const { id } = req.params;
-    // const bookmark = bookmarks.find((b) => b.id === id);
     const knexInstance = req.app.get('db');
     BookmarksService.getById(knexInstance, id)
       .then((bookmark) => {
         if (!bookmark) {
           logger.error(`Bookmark with id ${id} not found.`);
-          return res.status(404).send('Bookmark not found.');
+          return res.status(404).send({
+            error: { message: `Bookmark doesn't exist` }
+          });
         }
         res.json(bookmark);
+        res.json({
+          id: bookmark.id,
+          title: xss(bookmark.title), //sanitize the title
+          url: xss(bookmark.url), //sanitize the url
+          description: xss(bookmark.description), //sanitize the description
+          rating: bookmark.rating
+        });
       })
       .catch(next);
   })

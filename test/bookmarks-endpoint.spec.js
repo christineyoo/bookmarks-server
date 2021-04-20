@@ -43,7 +43,7 @@ describe.only('Bookmarks Endpoints', function () {
   });
 
   describe('GET /bookmarks/:id', () => {
-    context('Given no bookmarks', () => {
+    context('Given no such bookmark', () => {
       it('Responds with 404', () => {
         const bookmarkId = 123456;
         return supertest(app)
@@ -51,6 +51,7 @@ describe.only('Bookmarks Endpoints', function () {
           .expect(404, 'Bookmark not found.');
       });
     });
+
     context('Given there are bookmarks in the database', () => {
       const testBookmarks = makeBookmarksArray();
 
@@ -64,6 +65,35 @@ describe.only('Bookmarks Endpoints', function () {
         return supertest(app)
           .get(`/bookmarks/${bookmarkId}`)
           .expect(200, expectedBookmark);
+      });
+    });
+
+    context('given an XSS attack bookmark', () => {
+      const maliciousBookmark = {
+        id: 911,
+        title: 'Malicious <script>alert("xss");</script>',
+        url: 'www.maliciousbookmark.com',
+        description:
+          'Bad description <img src="https://url.to.file.which/does-not.exist" onerror="alert(document.cookie);">',
+        rating: 5
+      };
+
+      beforeEach('insert malicious bookmark', () => {
+        return db.into('blogful_articles').insert([maliciousBookmark]);
+      });
+
+      it('removes XSS attack content', () => {
+        return supertest(app)
+          .get(`/bookmarks/${maliciousBookmark.id}`)
+          .expect(200)
+          .expect((res) => {
+            expect(res.body.title).to.eql(
+              'Malicious &lt;script&gt;alert("xss");&lt;/script&gt;'
+            );
+            expect(res.body.content).to.eql(
+              'Bad description <img src="https://url.to.file.which/does-not.exist">'
+            );
+          });
       });
     });
   });
