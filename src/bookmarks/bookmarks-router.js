@@ -25,7 +25,6 @@ if (NODE_ENV !== 'production') {
 bookmarkRouter
   .route('/bookmarks')
   .get((req, res, next) => {
-    // res.send(bookmarks);
     const knexInstance = req.app.get('db');
     BookmarksService.getAllBookmarks(knexInstance)
       .then((bookmarks) => res.json(bookmarks))
@@ -68,7 +67,10 @@ bookmarkRouter
     res
       .status(201)
       .location(`http://localhost:8000/bookmarks/${id}`)
-      .json(bookmark);
+      .json({
+        ...req.body,
+        id: 12
+      });
   });
 
 bookmarkRouter
