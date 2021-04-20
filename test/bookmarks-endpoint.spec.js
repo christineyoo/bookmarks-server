@@ -4,7 +4,7 @@ const supertest = require('supertest');
 const app = require('../src/app');
 const { makeBookmarksArray } = require('./bookmarks.fixtures');
 
-describe('Bookmarks Endpoints', function () {
+describe.only('Bookmarks Endpoints', function () {
   let db;
 
   before('Make knex instance', () => {
@@ -91,10 +91,32 @@ describe('Bookmarks Endpoints', function () {
           expect(res.body.description.to.eql(newBookmark.description));
           expect(res.body.rating.to.eql(newBookmark.rating));
           expect(res.body).to.have.property('id');
+          expect(res.headers.location).to.eql(`/bookmarks/${res.body.id}`);
         })
         .then((postRes) => supertest(app))
         .get(`/articles/${postRes.body.id}`)
         .expect(postRes.body);
+    });
+
+    const requiredFields = ['title', 'url', 'rating'];
+
+    requiredFields.forEach((field) => {
+      const newBookmark = {
+        title: 'Test new bookmark',
+        url: 'www.newbookmark.com',
+        rating: 1
+      };
+
+      it(`responds with 400 and an error message when the '${field}' is missing`, () => {
+        delete newArticle[field];
+
+        return supertest(app)
+          .post('/bookmarks')
+          .send(newBookmark)
+          .expect(400, {
+            error: { message: `Missing '${field}' in request body` }
+          });
+      });
     });
   });
 });

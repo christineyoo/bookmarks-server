@@ -30,7 +30,7 @@ bookmarkRouter
       .then((bookmarks) => res.json(bookmarks))
       .catch(next);
   })
-  .post(bodyParser, (req, res) => {
+  .post(bodyParser, (req, res, next) => {
     const { title, url, description, rating } = req.body;
 
     if (!title) {
@@ -64,13 +64,20 @@ bookmarkRouter
 
     bookmarks.push(bookmark);
     logger.info(`Bookmark with id ${id} created.`);
-    res
-      .status(201)
-      .location(`http://localhost:8000/bookmarks/${id}`)
-      .json({
-        ...req.body,
-        id: 12
-      });
+    const newBookmark = { title, url, description, rating };
+
+    for (const [key, value] of Object.entries(newArticle)) {
+      if (value == null) {
+        return res.status(400).json({
+          error: { message: `Missing '${key}' in request body` }
+        });
+      }
+    }
+    BookmarksService.insertBookmark(req.app.get('db'), newBookmark)
+      .then((bookmark) => {
+        res.status(201).location(`/bookmarks/${bookmark.id}`).json(bookmark);
+      })
+      .catch(next);
   });
 
 bookmarkRouter
