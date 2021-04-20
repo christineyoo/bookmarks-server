@@ -83,27 +83,29 @@ bookmarkRouter
 
 bookmarkRouter
   .route('/bookmarks/:id')
-  .get((req, res, next) => {
-    const { id } = req.params;
-    const knexInstance = req.app.get('db');
-    BookmarksService.getById(knexInstance, id)
+  .all((req, res, next) => {
+    BookmarksService.getById(req.app.get('db'), req.params.id)
       .then((bookmark) => {
         if (!bookmark) {
           logger.error(`Bookmark with id ${id} not found.`);
-          return res.status(404).send({
+          return res.status(404).json({
             error: { message: `Bookmark doesn't exist` }
           });
         }
-        res.json(bookmark);
-        res.json({
+        res.bookmark = bookmark //save the bookmark for the next middleware
+        next(); //calling next so that the next middleware happens
+        
+      })
+      .catch(next);
+  })
+  .get((req, res, next) => {
+    res.json({
           id: bookmark.id,
           title: xss(bookmark.title), //sanitize the title
           url: xss(bookmark.url), //sanitize the url
           description: xss(bookmark.description), //sanitize the description
           rating: bookmark.rating
         });
-      })
-      .catch(next);
   })
   .delete((req, res, next) => {
     const { id } = req.params;

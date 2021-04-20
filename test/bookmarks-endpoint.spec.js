@@ -176,5 +176,14 @@ describe.only('Bookmarks Endpoints', function () {
           );
       });
     });
+
+    context('Given no bookmarks', () => {
+      it('responds with 404', () => {
+        const bookmarkId = 123456;
+        return supertest(app)
+          .delete(`/bookmarks/${bookmarkId}`)
+          .expect(404, { error: { message: `Bookmark doesn't exist` } });
+      });
+    });
   });
 });
